@@ -1,6 +1,6 @@
 // Кеш оболонки додатка, щоб він відкривався без інтернету.
 // Змінюй VERSION при кожному оновленні файлів — тоді телефон підтягне нову версію.
-const VERSION = 'buh-v3';
+const VERSION = 'buh-v4';
 const SHELL = [
   './',
   'index.html',
@@ -32,7 +32,7 @@ self.addEventListener('fetch', (e) => {
   // Сторінка: спершу мережа (щоб оновлення приходили), без мережі — кеш
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: 'no-cache' })
         .then((res) => {
           const copy = res.clone();
           caches.open(VERSION).then((c) => c.put('index.html', copy));
