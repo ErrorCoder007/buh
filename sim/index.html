@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Сторінка може звертатися лише до Apps Script. Жодних сторонніх скриптів, шрифтів чи аналітики. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f1f3f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1217" media="(prefers-color-scheme: dark)">
+<title>Що якщо</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f1f3f2;
+  --surface: #fcfcfb;
+  --ink: #15233b;
+  --ink-2: #4d586a;
+  --muted: #747d8a;
+  --line: #e0e4e3;
+  --axis: #c4c9c8;
+  --tint: rgba(21, 35, 59, 0.04);
+  --cap: #2a78d6;
+  --cash: #eb6834;
+  --ghost: #b9bfc7;
+  --warn: #ec835a;
+  --warn-bg: #fbe9e1;
+  --focus: #2a78d6;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0f1217;
+    --surface: #161a20;
+    --ink: #eef1f4;
+    --ink-2: #b8c0ca;
+    --muted: #8b939d;
+    --line: #262c34;
+    --axis: #3a414b;
+    --tint: rgba(255, 255, 255, 0.035);
+    --cap: #3987e5;
+    --cash: #d95926;
+    --ghost: #4a525d;
+    --warn-bg: #33221b;
+    --focus: #3987e5;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); -webkit-text-size-adjust: 100%; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+[hidden] { display: none !important; }
+h2 { font-size: 0.95rem; font-weight: 650; margin: 0 0 12px; }
+
+/* ---------- Шапка ---------- */
+.top {
+  max-width: 1200px; margin: 0 auto; padding: 18px 24px 8px;
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap;
+}
+.brand { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.top-meta { display: flex; gap: 14px; align-items: baseline; font-size: 0.85rem; color: var(--ink-2); flex-wrap: wrap; }
+.link-btn {
+  background: none; border: 0; padding: 0; color: var(--ink-2);
+  text-decoration: underline; text-decoration-color: var(--axis); text-underline-offset: 3px;
+}
+.link-btn:hover { color: var(--ink); text-decoration-color: currentColor; }
+.status { color: var(--muted); }
+
+/* ---------- Підключення ---------- */
+.connect { max-width: 520px; margin: 7vh auto 48px; padding: 0 24px; }
+.connect h2 { font-size: 1.6rem; letter-spacing: -0.02em; margin-bottom: 10px; }
+.connect p { color: var(--ink-2); margin: 0 0 24px; }
+.field { display: block; margin-bottom: 16px; font-size: 0.9rem; font-weight: 600; }
+.field input {
+  display: block; width: 100%; margin-top: 6px; padding: 11px 12px;
+  border: 1px solid var(--axis); border-radius: 8px; background: var(--surface);
+  font-size: 0.95rem; font-weight: 400;
+}
+.field input:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 25%, transparent); }
+.form-error { color: var(--ink); background: var(--warn-bg); border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; margin: 0 0 16px; }
+.form-error:empty { display: none; }
+.primary-btn {
+  background: var(--ink); color: var(--surface); border: 0; border-radius: 8px;
+  padding: 11px 20px; font-weight: 650;
+}
+.primary-btn:disabled { opacity: 0.6; cursor: default; }
+
+/* ---------- Розкладка ---------- */
+.app {
+  max-width: 1200px; margin: 0 auto; padding: 8px 24px 56px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; align-items: start;
+  transition: opacity 0.2s;
+}
+.app.loading .main-col, .app.loading .controls { opacity: 0.55; }
+
+/* ---------- Відповідь ---------- */
+.answer { padding: 18px 0 22px; }
+.hero {
+  margin: 0; max-width: 21em;
+  font-size: clamp(1.55rem, 1.05rem + 1.9vw, 2.45rem);
+  line-height: 1.22; font-weight: 620; letter-spacing: -0.022em;
+  text-wrap: balance;
+}
+.val {
+  white-space: nowrap;
+  text-decoration-line: underline; text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.16em; text-decoration-skip-ink: none;
+}
+.val.cap { text-decoration-color: var(--cap); }
+.val.cash { text-decoration-color: var(--cash); }
+.hero-sub { margin: 14px 0 0; max-width: 40em; color: var(--ink-2); font-size: 1.02rem; }
+.warning {
+  display: flex; gap: 10px; align-items: flex-start; margin: 16px 0 0; max-width: 40em;
+  background: var(--warn-bg); border-radius: 8px; padding: 10px 12px; font-size: 0.92rem;
+}
+.warn-icon {
+  flex: none; width: 20px; height: 20px; border-radius: 50%; background: var(--warn); color: #0b0b0b;
+  display: grid; place-items: center; font-weight: 800; font-size: 0.8rem; margin-top: 1px;
+}
+
+.facts {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;
+  margin: 0 0 24px; padding: 16px 0 0; border-top: 1px solid var(--line);
+}
+.facts div { min-width: 0; }
+.facts dt { font-size: 0.8rem; color: var(--muted); }
+.facts dd { margin: 2px 0 0; font-size: 1.12rem; font-weight: 650; }
+.facts small { display: block; font-size: 0.8rem; font-weight: 400; color: var(--ink-2); }
+
+/* ---------- Графік ---------- */
+.chart-block { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 16px 10px; }
+.chart-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.legend { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px 16px; flex-wrap: wrap; font-size: 0.82rem; color: var(--ink-2); }
+.legend li { display: flex; align-items: center; gap: 6px; }
+.segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; padding: 2px; background: var(--page); }
+.segmented button {
+  border: 0; background: none; border-radius: 6px; padding: 4px 10px; font-size: 0.82rem; color: var(--ink-2);
+}
+.segmented button[aria-pressed="true"] { background: var(--ink); color: var(--surface); font-weight: 600; }
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; width: 100%; overflow: visible; touch-action: pan-y; }
+.chart svg:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 6px; }
+.tick { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.annot { font-size: 11px; fill: var(--ink-2); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.end-label { font-size: 12px; font-weight: 650; fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.tooltip {
+  position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); padding: 8px 10px; font-size: 0.8rem; min-width: 168px;
+}
+.tooltip .tt-head { color: var(--muted); margin-bottom: 4px; }
+.tooltip .tt-row { display: flex; align-items: center; gap: 8px; line-height: 1.6; }
+.tooltip .tt-row b { font-weight: 650; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tooltip .tt-row span { color: var(--ink-2); }
+.tooltip .tt-row.sub { padding-left: 22px; }
+.key { flex: none; width: 14px; height: 0; border-top: 2px solid; }
+.key.cap { border-color: var(--cap); }
+.key.cash { border-color: var(--cash); }
+.key.ghost { border-color: var(--ghost); }
+.key.target { border-top: 2px dashed var(--ink-2); }
+.key.none { border-color: transparent; }
+
+.table-view { margin-top: 6px; font-size: 0.85rem; }
+.table-view summary { cursor: pointer; color: var(--ink-2); padding: 6px 0; width: fit-content; }
+.table-wrap { overflow-x: auto; }
+.table-view table { border-collapse: collapse; width: 100%; margin: 6px 0 8px; }
+.table-view th, .table-view td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.table-view th:first-child, .table-view td:first-child { text-align: left; }
+.table-view th { font-weight: 600; color: var(--muted); font-size: 0.8rem; }
+.table-view td { font-variant-numeric: tabular-nums; }
+
+/* ---------- Разові витрати ---------- */
+.events { margin-top: 28px; }
+.events p { margin: -6px 0 14px; color: var(--ink-2); font-size: 0.92rem; }
+.event-list { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 8px; }
+.event-list li { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.event-list select, .event-list input {
+  border: 1px solid var(--axis); border-radius: 8px; background: var(--surface); padding: 8px 10px; font-size: 0.92rem;
+}
+.event-list input { width: 9.5em; text-align: right; font-variant-numeric: tabular-nums; }
+.event-list .unit { color: var(--ink-2); font-size: 0.9rem; }
+.ghost-btn {
+  border: 1px solid var(--axis); background: var(--surface); border-radius: 8px; padding: 8px 14px; font-size: 0.9rem; font-weight: 600;
+}
+.ghost-btn:hover { border-color: var(--ink-2); }
+.footnote { margin-top: 28px; font-size: 0.8rem; color: var(--muted); max-width: 46em; }
+
+/* ---------- Панель керування ---------- */
+.controls {
+  position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 6px;
+}
+.controls section { padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid var(--line); }
+.controls section:last-child { border-bottom: 0; margin-bottom: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--line); background: var(--page); border-radius: 999px;
+  padding: 5px 11px; font-size: 0.83rem; color: var(--ink);
+}
+.chip:hover { border-color: var(--axis); }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.ctl { margin-bottom: 14px; }
+.ctl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.ctl-head label { font-size: 0.9rem; font-weight: 600; }
+.ctl-num { display: flex; align-items: baseline; gap: 3px; font-size: 0.85rem; color: var(--ink-2); white-space: nowrap; }
+.num {
+  width: 7.2em; text-align: right; font-weight: 650; font-size: 1rem; color: var(--ink);
+  border: 1px solid transparent; border-radius: 6px; background: transparent; padding: 2px 4px;
+  font-variant-numeric: tabular-nums;
+}
+.num.short { width: 3.4em; }
+.num:hover { border-color: var(--line); }
+.num:focus { outline: none; border-color: var(--focus); background: var(--page); }
+.ctl-hint { display: flex; justify-content: space-between; gap: 10px; font-size: 0.77rem; color: var(--muted); line-height: 1.35; }
+.ctl-hint .link-btn { font-size: 0.77rem; flex: none; }
+
+input[type="range"] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 26px; margin: 2px 0; background: transparent; --fill: 50%;
+}
+input[type="range"]:focus { outline: none; }
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--ink) var(--fill), var(--line) var(--fill));
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 20px; height: 20px; margin-top: -8px; border-radius: 50%;
+  background: var(--ink); border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--ink);
+}
+input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--line); }
+input[type="range"]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--ink); }
+input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--ink);
+}
+input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 1px var(--ink), 0 0 0 5px color-mix(in srgb, var(--focus) 35%, transparent); }
+input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 1px var(--ink), 0 0 0 5px color-mix(in srgb, var(--focus) 35%, transparent); }
+
+.leftover { margin: 2px 0 14px; font-size: 0.88rem; padding: 8px 10px; border-radius: 8px; background: var(--page); }
+.leftover b { font-variant-numeric: tabular-nums; }
+.leftover.neg { background: var(--warn-bg); }
+.switch { display: flex; gap: 10px; align-items: flex-start; font-size: 0.88rem; cursor: pointer; }
+.switch input { flex: none; width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--ink); }
+
+/* ---------- Нижня плашка на телефоні ---------- */
+.dock { display: none; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-bottom: 96px; }
+  .controls { position: static; max-height: none; overflow: visible; }
+  /* На телефоні повзунки одразу під графіком */
+  .main-col { display: contents; }
+  .answer { order: 1; padding: 8px 0 0; }
+  .facts { order: 2; margin: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chart-block { order: 3; }
+  .controls { order: 4; }
+  .events { order: 5; margin-top: 0; }
+  .footnote { order: 6; margin-top: 0; }
+  .dock:not([hidden]) {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+    background: var(--surface); border-top: 1px solid var(--line);
+    padding: 10px 20px calc(10px + env(safe-area-inset-bottom));
+  }
+  .dock span { display: block; font-size: 0.75rem; color: var(--muted); }
+  .dock b { font-size: 1.02rem; font-weight: 650; }
+}
+@media (max-width: 520px) {
+  .top, .app { padding-left: 16px; padding-right: 16px; }
+  .chart-block { padding: 12px 10px 8px; border-radius: 12px; }
+  .event-list input { width: 8em; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1 class="brand">Що якщо</h1>
+  <div class="top-meta" id="topMeta" hidden>
+    <span id="asOf"></span>
+    <span class="status" id="status"></span>
+    <button type="button" class="link-btn" id="refreshBtn">Оновити</button>
+    <button type="button" class="link-btn" id="disconnectBtn">Відключити</button>
+  </div>
+</header>
+
+<section class="connect" id="connect" hidden>
+  <h2>Підключи таблицю</h2>
+  <p>Сторінка публічна, тому цифри з «Бугалтерії» вона отримує лише за ключем. Адреса й ключ зберігаються тільки в цьому браузері й нікуди, крім твого Apps Script, не надсилаються.</p>
+  <form id="connectForm" novalidate>
+    <label class="field">Адреса API
+      <input id="apiUrl" type="url" autocomplete="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec">
+    </label>
+    <label class="field">Ключ
+      <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="64 літери й цифри з журналу Apps Script">
+    </label>
+    <p class="form-error" id="connectError" role="alert"></p>
+    <button type="submit" class="primary-btn" id="connectBtn">Підключити</button>
+  </form>
+</section>
+
+<main class="app" id="app" hidden>
+  <div class="main-col">
+    <section class="answer">
+      <p class="hero" id="hero"></p>
+      <p class="hero-sub" id="heroSub"></p>
+      <p class="warning" id="warning" hidden><span class="warn-icon" aria-hidden="true">!</span><span id="warningText"></span></p>
+    </section>
+
+    <dl class="facts" id="facts"></dl>
+
+    <section class="chart-block" aria-label="Графік капіталу">
+      <div class="chart-head">
+        <ul class="legend" id="legend"></ul>
+        <div class="segmented" role="group" aria-label="На скільки вперед рахувати" id="horizon"></div>
+      </div>
+      <div class="chart" id="chart">
+        <div class="tooltip" id="tooltip" hidden></div>
+      </div>
+      <details class="table-view">
+        <summary>Показати цифрами</summary>
+        <div class="table-wrap" id="tableWrap"></div>
+      </details>
+    </section>
+
+    <section class="events">
+      <h2>Великі разові витрати</h2>
+      <p>Ремонт авто, переїзд, техніка. Додай, щоб побачити, як це зсуне подушку.</p>
+      <ul class="event-list" id="eventList"></ul>
+      <button type="button" class="ghost-btn" id="addEvent">Додати витрату</button>
+    </section>
+
+    <p class="footnote">Модель спрощена: без інфляції, податків і зміни курсу. Дохід і витрати щомісяця однакові, а дохідність акцій рівна. Насправді ринок буває і в мінусі. Прогноз рахується з наступного місяця.</p>
+  </div>
+
+  <aside class="controls" aria-label="Налаштування сценарію">
+    <section>
+      <h2>Сценарії</h2>
+      <div class="chips" id="chips"></div>
+    </section>
+    <section>
+      <h2>Щомісяця</h2>
+      <div id="ctlMonth"></div>
+      <p class="leftover" id="leftover"></p>
+      <label class="switch"><input type="checkbox" id="autoInvest"><span>Коли подушка зібрана, надлишок кешу йде в акції</span></label>
+    </section>
+    <section>
+      <h2>Припущення</h2>
+      <div id="ctlAssume"></div>
+    </section>
+  </aside>
+</main>
+
+<div class="dock" id="dock" hidden>
+  <div><span>Подушка</span><b id="dockCushion"></b></div>
+  <div><span id="dockCapLabel"></span><b id="dockCap"></b></div>
+</div>
+
+<noscript><p style="padding:24px">Для симулятора потрібен JavaScript.</p></noscript>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= Налаштування й сховище ================= */
+
+const STORE_CONN = 'whatif.conn';
+const STORE_CACHE = 'whatif.cache';
+// Ключ надсилається тільки на адресу такого вигляду, і нікуди більше.
+const URL_RE = /^https:\/\/script\.google\.com\/(?:a\/macros\/[^/\s]+|macros)\/s\/[\w-]+\/exec$/;
+const KEY_RE = /^[A-Za-z0-9]{32,128}$/;
+// Адреса не секретна: без ключа скрипт нічого не віддає.
+const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbxoXA0kDvNctYysw3rpiP7xX91a3TmW97HwIU9xcvxKNVkvUZCmcajYpXZo7_Agau96/exec';
+const MAX_MONTHS = 120;
+const HORIZONS = [1, 3, 5, 10];
+
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (_) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) { /* приватний режим */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (_) { /* нічого */ } },
+};
+
+const $ = id => document.getElementById(id);
+
+/* ================= Формати ================= */
+
+const M_SHORT = ['січ.', 'лют.', 'бер.', 'квіт.', 'трав.', 'черв.', 'лип.', 'серп.', 'вер.', 'жовт.', 'лист.', 'груд.'];
+const M_LOC = ['січні', 'лютому', 'березні', 'квітні', 'травні', 'червні', 'липні', 'серпні', 'вересні', 'жовтні', 'листопаді', 'грудні'];
+const M_NOM = ['січень', 'лютий', 'березень', 'квітень', 'травень', 'червень', 'липень', 'серпень', 'вересень', 'жовтень', 'листопад', 'грудень'];
+const M_GEN = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
+
+const nf = new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 0 });
+const fmt = v => nf.format(Math.round(v)).replace('-', '−');
+const money = v => fmt(v) + ' грн';
+function compact(v) {
+  const a = Math.abs(v), sign = v < 0 ? '−' : '';
+  if (a >= 1e6) {
+    const n = a / 1e6;
+    return sign + (n >= 10 ? n.toFixed(1) : n.toFixed(2)).replace(/\.?0+$/, '').replace('.', ',') + ' млн';
+  }
+  if (a >= 1e4) return sign + nf.format(Math.round(a / 1000)) + ' тис.';
+  return fmt(v);
+}
+const compactMoney = v => compact(v) + ' грн';
+const pct = v => Math.round(v * 100) + '%';
+function plural(n, one, few, many) {
+  const n10 = n % 10, n100 = n % 100;
+  if (n10 === 1 && n100 !== 11) return one;
+  if (n10 >= 2 && n10 <= 4 && (n100 < 10 || n100 >= 20)) return few;
+  return many;
+}
+const monthsWord = n => n + ' ' + plural(n, 'місяць', 'місяці', 'місяців');
+const yearsWord = n => n + ' ' + plural(n, 'рік', 'роки', 'років');
+const round500 = v => Math.round(v / 500) * 500;
+const parseNum = s => {
+  const clean = String(s).replace(',', '.').replace(/[^\d.]/g, '');
+  return clean === '' ? NaN : Number(clean);
+};
+
+const ymParse = key => { const [y, m] = key.split('-').map(Number); return { y, m: m - 1 }; };
+const ymKey = (y, m) => y + '-' + String(m + 1).padStart(2, '0');
+function ymAdd(key, n) {
+  const { y, m } = ymParse(key);
+  const t = y * 12 + m + n;
+  return ymKey(Math.floor(t / 12), t % 12);
+}
+const ymDiff = (a, b) => { const A = ymParse(a), B = ymParse(b); return (B.y - A.y) * 12 + (B.m - A.m); };
+const median = arr => {
+  if (!arr.length) return 0;
+  const s = arr.slice().sort((a, b) => a - b), h = Math.floor(s.length / 2);
+  return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2;
+};
+const mean = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+const rangeLabel = list => list.length ? (list.length === 1 ? M_SHORT[ymParse(list[0].m).m] : M_SHORT[ymParse(list[0].m).m] + '–' + M_SHORT[ymParse(list[list.length - 1].m).m]) : '';
+
+/* ================= Стан ================= */
+
+let data = null;      // відповідь API
+let info = null;      // похідні цифри з даних
+let defaults = null;  // «мій темп»
+let state = null;     // { p: {...}, events: [...], horizon }
+let sim = null, base = null;
+let eventSeq = 1;
+
+/* ================= Мережа ================= */
+
+async function fetchData(conn) {
+  if (!URL_RE.test(conn.url) || !KEY_RE.test(conn.key)) throw codeError('format');
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 25000);
+  try {
+    let res;
+    try {
+      res = await fetch(conn.url, {
+        method: 'POST',
+        // text/plain, щоб браузер не робив preflight, який Apps Script не підтримує
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ key: conn.key }),
+        credentials: 'omit',
+        cache: 'no-store',
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        signal: ctrl.signal,
+      });
+    } catch (_) { throw codeError('network'); }
+    if (!res.ok) throw codeError('network');
+    let json;
+    try { json = await res.json(); } catch (_) { throw codeError('format'); }
+    if (!json || json.ok !== true) throw codeError(json && json.error === 'unauthorized' ? 'unauthorized' : 'server');
+    if (!isValidData(json.data)) throw codeError('format');
+    return json.data;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+function codeError(code) { const e = new Error(code); e.code = code; return e; }
+function isValidData(d) {
+  const num = v => typeof v === 'number' && isFinite(v);
+  const key = v => typeof v === 'string' && /^\d{4}-\d{2}$/.test(v);
+  return !!d && typeof d.asOf === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d.asOf)
+    && d.now && num(d.now.cash) && num(d.now.stocks)
+    && Array.isArray(d.months) && d.months.every(m => m && key(m.m) && num(m.income) && num(m.life) && num(m.dev) && num(m.stocks))
+    && Array.isArray(d.history) && d.history.every(h => h && key(h.m) && num(h.cash) && num(h.stocks))
+    && (d.planStocksShare === null || d.planStocksShare === undefined || num(d.planStocksShare));
+}
+const ERRORS = {
+  unauthorized: 'Ключ не підійшов. Візьми ключ з останнього запуску функції createKey у журналі Apps Script.',
+  network: 'Не вдалося дістатися до скрипту. Перевір адресу, інтернет і що скрипт розгорнуто з доступом «Будь-хто».',
+  server: 'Скрипт не зміг прочитати таблицю. Відкрий Apps Script і подивись журнал виконань.',
+  format: 'Скрипт відповів не тим, що треба. Перевір, що в ньому код з файлу Code.gs.',
+};
+
+/* ================= Аналіз даних ================= */
+
+function analyze(d) {
+  const cur = d.asOf.slice(0, 7);
+  const byKey = {};
+  d.months.forEach(m => { byKey[m.m] = m; });
+  const first = d.months.length ? d.months[0].m : cur;
+  const full = [];
+  for (let k = first; k < cur; k = ymAdd(k, 1)) full.push(byKey[k] || { m: k, income: 0, life: 0, dev: 0, stocks: 0 });
+  const last3 = full.slice(-3), last6 = full.slice(-6);
+
+  const exact = {
+    income: mean(last3.map(m => m.income)),
+    life: median(last6.map(m => m.life)),
+    dev: median(last3.map(m => m.dev)),
+    stocks: mean(last3.map(m => m.stocks)),
+  };
+
+  // Найдорожчий місяць — для сценарію «ще один такий»
+  let spike = null;
+  full.forEach(m => { if (!spike || m.life > spike.life) spike = m; });
+  let spikeInfo = null;
+  if (spike) {
+    const amount = Math.round((spike.life - exact.life) / 1000) * 1000;
+    if (amount >= Math.max(20000, exact.life * 0.5)) spikeInfo = { month: ymParse(spike.m).m, amount };
+  }
+
+  const hist = d.history.slice().sort((a, b) => a.m < b.m ? -1 : 1).filter(h => h.m <= cur);
+  const firstKey = hist.length ? hist[0].m : cur;
+
+  return {
+    cur, exact, spike: spikeInfo,
+    range3: rangeLabel(last3), range6: rangeLabel(last6),
+    hist, firstKey,
+    histIdx: hist.map(h => ymDiff(firstKey, h.m)),
+    curIdx: ymDiff(firstKey, cur),
+    asOfDate: d.asOf,
+    plan: d.planStocksShare > 0 && d.planStocksShare <= 1 ? d.planStocksShare : null,
+  };
+}
+
+function makeDefaults(i) {
+  return {
+    income: round500(i.exact.income),
+    life: round500(i.exact.life),
+    dev: round500(i.exact.dev),
+    stocks: round500(i.exact.stocks),
+    cushion: 6,
+    ret: 8,
+    auto: false,
+  };
+}
+
+const monthAt = t => ymParse(ymAdd(info.cur, t));
+const monthLabel = t => { const { y, m } = monthAt(t); return M_SHORT[m] + ' ' + y; };
+
+/* ================= Модель ================= */
+
+function simulate(p, events, start, months) {
+  const mr = Math.pow(1 + p.ret / 100, 1 / 12) - 1;
+  const target = p.life * p.cushion;
+  const extra = {};
+  events.forEach(e => { extra[e.offset] = (extra[e.offset] || 0) + e.amount; });
+
+  let cash = start.cash, stocks = start.stocks;
+  const cashArr = [cash], stocksArr = [stocks];
+  let reachedAt = cash >= target ? 0 : null;
+
+  for (let t = 1; t <= months; t++) {
+    cash += p.income - p.life - p.dev - (extra[t] || 0) - p.stocks;
+    stocks = stocks * (1 + mr) + p.stocks;
+    if (reachedAt === null && cash >= target) reachedAt = t;
+    if (p.auto && cash > target) {
+      stocks += cash - target;
+      cash = target;
+    }
+    cashArr.push(cash); stocksArr.push(stocks);
+  }
+  return {
+    target, reachedAt, extra,
+    cash: cashArr, stocks: stocksArr,
+    total: cashArr.map((c, i) => c + stocksArr[i]),
+  };
+}
+
+/* ================= Сценарії ================= */
+
+function presets() {
+  const d = defaults;
+  const list = [
+    { id: 'base', label: 'Мій темп', p: { ...d }, events: [] },
+    { id: 'auto', label: 'Подушка, потім акції', p: { ...d, auto: true }, events: [] },
+  ];
+  if (info.plan) list.push({ id: 'plan', label: Math.round(info.plan * 100) + '% доходу в акції, як у плані', p: { ...d, stocks: round500(d.income * info.plan) }, events: [] });
+  list.push({ id: 'save', label: 'Витрати на 10% менші', p: { ...d, life: round500(d.life * 0.9) }, events: [] });
+  if (info.spike) list.push({ id: 'spike', label: 'Ще один ' + M_NOM[info.spike.month], p: { ...d }, events: [{ offset: 3, amount: info.spike.amount }] });
+  return list;
+}
+function sameScenario(a, pEvents) {
+  const keys = ['income', 'life', 'dev', 'stocks', 'cushion', 'ret', 'auto'];
+  if (keys.some(k => a.p[k] !== state.p[k])) return false;
+  const ev = state.events.filter(e => e.amount > 0);
+  if (ev.length !== pEvents.length) return false;
+  const norm = list => list.map(e => e.offset + ':' + e.amount).sort().join('|');
+  return norm(ev) === norm(pEvents);
+}
+const isBase = () => sameScenario({ p: defaults }, []);
+function applyPreset(ps) {
+  state.p = { ...ps.p };
+  state.events = ps.events.map(e => ({ id: eventSeq++, offset: e.offset, amount: e.amount }));
+  renderEvents();
+  syncControls();
+  renderAll();
+}
+
+/* ================= Керування ================= */
+
+const CONTROLS = [
+  { key: 'income', group: 'ctlMonth', label: 'Дохід', unit: 'грн', step: 500, maxOf: d => Math.max(200000, d.income * 2),
+    hint: () => 'Середнє за ' + info.range3 + ': ' + money(info.exact.income) },
+  { key: 'life', group: 'ctlMonth', label: 'Витрати на життя', unit: 'грн', step: 500, maxOf: d => Math.max(150000, d.life * 2),
+    hint: () => 'Медіана за ' + info.range6 + ': ' + money(info.exact.life) + '. Без акцій, навчання й плитки' },
+  { key: 'dev', group: 'ctlMonth', label: 'Навчання й плитка', unit: 'грн', step: 500, maxOf: d => Math.max(50000, d.dev * 3),
+    hint: () => 'Медіана за ' + info.range3 + ': ' + money(info.exact.dev) },
+  { key: 'stocks', group: 'ctlMonth', label: 'Купую акції', unit: 'грн', step: 500, maxOf: d => Math.max(100000, d.income),
+    hint: () => 'Середнє за ' + info.range3 + ': ' + money(info.exact.stocks) },
+  { key: 'cushion', group: 'ctlAssume', label: 'Подушка', unit: 'міс.', step: 1, min: 1, maxOf: () => 12, short: true,
+    hint: () => 'Ціль ' + money(state.p.life * state.p.cushion) + ': витрати на життя × місяці' },
+  { key: 'ret', group: 'ctlAssume', label: 'Дохідність акцій', unit: '% на рік', step: 0.5, maxOf: () => 15, short: true, decimal: true,
+    hint: () => 'Припущення. S&P 500 на довгому відрізку давав у середньому близько 10% на рік у доларах, але бувають і роки в мінусі' },
+];
+const ctlEls = {};
+
+function buildControls() {
+  ['ctlMonth', 'ctlAssume'].forEach(id => { $(id).textContent = ''; });
+  CONTROLS.forEach(c => {
+    const wrap = document.createElement('div');
+    wrap.className = 'ctl';
+    const head = document.createElement('div'); head.className = 'ctl-head';
+    const label = document.createElement('label'); label.textContent = c.label; label.htmlFor = 'n-' + c.key;
+    const numWrap = document.createElement('span'); numWrap.className = 'ctl-num';
+    const num = document.createElement('input');
+    num.className = 'num' + (c.short ? ' short' : ''); num.id = 'n-' + c.key; num.type = 'text';
+    num.inputMode = c.decimal ? 'decimal' : 'numeric'; num.autocomplete = 'off';
+    const unit = document.createElement('span'); unit.textContent = c.unit;
+    numWrap.append(num, unit);
+    head.append(label, numWrap);
+
+    const range = document.createElement('input');
+    range.type = 'range'; range.step = c.step; range.min = c.min || 0;
+    range.setAttribute('aria-label', c.label);
+
+    const hintRow = document.createElement('div'); hintRow.className = 'ctl-hint';
+    const hint = document.createElement('span');
+    const reset = document.createElement('button');
+    reset.type = 'button'; reset.className = 'link-btn'; reset.textContent = 'Повернути';
+    reset.setAttribute('aria-label', 'Повернути «' + c.label + '» до моїх даних');
+    hintRow.append(hint, reset);
+
+    wrap.append(head, range, hintRow);
+    $(c.group).appendChild(wrap);
+
+    range.addEventListener('input', () => { setParam(c, Number(range.value)); });
+    num.addEventListener('change', () => {
+      const v = parseNum(num.value);
+      if (isFinite(v)) setParam(c, v); else syncControls();
+    });
+    num.addEventListener('keydown', e => { if (e.key === 'Enter') num.blur(); });
+    reset.addEventListener('click', () => { setParam(c, defaults[c.key]); });
+
+    ctlEls[c.key] = { c, num, range, hint, reset };
+  });
+}
+
+function setParam(c, v) {
+  const min = c.min || 0;
+  v = Math.max(min, v);
+  if (c.key === 'cushion') v = Math.min(36, Math.round(v));
+  if (c.key === 'ret') v = Math.min(50, Math.round(v * 10) / 10);
+  if (c.unit === 'грн') v = Math.min(10000000, Math.round(v));
+  state.p[c.key] = v;
+  syncControls();
+  renderAll();
+}
+
+function syncControls() {
+  CONTROLS.forEach(c => {
+    const el = ctlEls[c.key];
+    const v = state.p[c.key];
+    const max = Math.max(c.maxOf(defaults), v);
+    el.range.max = max;
+    el.range.value = v;
+    el.range.style.setProperty('--fill', ((v - (c.min || 0)) / (max - (c.min || 0)) * 100) + '%');
+    if (document.activeElement !== el.num) el.num.value = c.decimal ? String(v).replace('.', ',') : nf.format(v);
+    el.hint.textContent = c.hint();
+    el.reset.hidden = v === defaults[c.key];
+  });
+  $('autoInvest').checked = state.p.auto;
+}
+
+/* ================= Відмальовка ================= */
+
+function renderAll() {
+  const start = { cash: data.now.cash, stocks: data.now.stocks };
+  const events = state.events.filter(e => e.amount > 0);
+  sim = simulate(state.p, events, start, MAX_MONTHS);
+  base = simulate(defaults, [], start, MAX_MONTHS);
+  renderAnswer();
+  renderFacts();
+  renderLeftover();
+  renderChips();
+  renderHorizon();
+  drawChart();
+  renderTable();
+}
+
+function addText(parent, text, cls) {
+  if (cls) {
+    const s = document.createElement('span');
+    s.className = 'val ' + cls; s.textContent = text; parent.appendChild(s);
+  } else parent.appendChild(document.createTextNode(text));
+}
+
+function cushionSummary() {
+  if (sim.reachedAt === 0) return { short: 'вже є' };
+  if (sim.reachedAt !== null) { const { y, m } = monthAt(sim.reachedAt); return { short: M_SHORT[m] + ' ' + y, y, m }; }
+  return { short: 'не збереться' };
+}
+
+function renderAnswer() {
+  const p = state.p;
+  const hM = state.horizon * 12;
+  const hero = $('hero'); hero.textContent = '';
+  const cw = 'Подушка на ' + monthsWord(p.cushion);
+  const cs = cushionSummary();
+  const monthlyCash = p.income - p.life - p.dev - p.stocks;
+
+  if (sim.reachedAt === 0) {
+    addText(hero, cw + ' '); addText(hero, 'вже є', 'cash'); addText(hero, '. ');
+  } else if (sim.reachedAt !== null) {
+    addText(hero, cw + ' збереться '); addText(hero, 'у ' + M_LOC[cs.m] + ' ' + cs.y, 'cash'); addText(hero, '. ');
+  } else {
+    addText(hero, cw + ' '); addText(hero, 'не збереться', 'cash');
+    addText(hero, monthlyCash > 0 ? ' і за 10 років. ' : ': кеш не росте. ');
+  }
+  const endTotal = sim.total[hM], endStocks = sim.stocks[hM];
+  addText(hero, 'Через ' + yearsWord(state.horizon) + ' весь капітал буде ');
+  addText(hero, compactMoney(endTotal), 'cap');
+  addText(hero, '.');
+
+  // Пояснення
+  const sub = [];
+  if (sim.reachedAt > 0) sub.push('Ціль ' + compactMoney(sim.target) + ', це через ' + monthsWord(sim.reachedAt) + '.');
+  else if (sim.reachedAt === 0) sub.push('Кешу ' + compactMoney(sim.cash[0]) + ' при цілі ' + compactMoney(sim.target) + '.');
+  else sub.push('Ціль ' + compactMoney(sim.target) + ', а кешу через ' + yearsWord(state.horizon) + ' буде ' + compactMoney(sim.cash[hM]) + '.');
+  sub.push('В акціях буде ' + compactMoney(endStocks) + '.');
+  if (!isBase()) {
+    const diff = endTotal - base.total[hM];
+    if (Math.abs(diff) < 1000) sub.push('Майже стільки ж, скільки за поточного темпу.');
+    else sub.push('Це на ' + compactMoney(Math.abs(diff)) + (diff > 0 ? ' більше' : ' менше') + ', ніж за поточного темпу.');
+  }
+  $('heroSub').textContent = sub.join(' ');
+
+  // Попередження про мінус (дрібниці до 1 000 грн не рахуємо)
+  const NEG = -1000;
+  let minT = null, firstNeg = null;
+  for (let t = 1; t <= hM; t++) {
+    if (sim.cash[t] >= NEG) continue;
+    if (firstNeg === null) firstNeg = t;
+    if (minT === null || sim.cash[t] < sim.cash[minT]) minT = t;
+  }
+  if (firstNeg !== null) {
+    const { y, m } = monthAt(firstNeg);
+    $('warningText').textContent = 'У ' + M_LOC[m] + ' ' + y + ' кеш піде в мінус, найнижче до ' + compactMoney(sim.cash[minT])
+      + '. Такий місяць доведеться перекривати кредиткою або продажем акцій.';
+    $('warning').hidden = false;
+  } else $('warning').hidden = true;
+
+  // Плашка на телефоні
+  $('dockCushion').textContent = cs.short;
+  $('dockCapLabel').textContent = 'Капітал через ' + yearsWord(state.horizon);
+  $('dockCap').textContent = compactMoney(endTotal);
+}
+
+function renderFacts() {
+  const p = state.p;
+  const free = p.income - p.life - p.dev;
+  const items = [
+    ['Відкладаєш щомісяця', money(free), p.income > 0 ? pct(free / p.income) + ' доходу' : ''],
+    ['Кеш зараз', money(data.now.cash), p.life > 0 ? 'вистачить на ' + (data.now.cash / p.life).toFixed(1).replace('.', ',') + ' міс.' : ''],
+    ['Акції зараз', money(data.now.stocks), ''],
+    ['Весь капітал зараз', money(data.now.cash + data.now.stocks), ''],
+  ];
+  const dl = $('facts'); dl.textContent = '';
+  items.forEach(([label, value, note]) => {
+    const div = document.createElement('div');
+    const dt = document.createElement('dt'); dt.textContent = label;
+    const dd = document.createElement('dd'); dd.textContent = value;
+    if (note) { const s = document.createElement('small'); s.textContent = note; dd.appendChild(s); }
+    div.append(dt, dd); dl.appendChild(div);
+  });
+}
+
+function renderLeftover() {
+  const p = state.p;
+  const v = p.income - p.life - p.dev - p.stocks;
+  const el = $('leftover'); el.textContent = '';
+  el.classList.toggle('neg', v < 0);
+  if (v >= 0) { addText(el, 'Лишається в кеш '); const b = document.createElement('b'); b.textContent = money(v); el.appendChild(b); addText(el, ' на місяць'); }
+  else { addText(el, 'Кеш щомісяця меншає на '); const b = document.createElement('b'); b.textContent = money(-v); el.appendChild(b); }
+}
+
+function renderChips() {
+  const box = $('chips'); box.textContent = '';
+  presets().forEach(ps => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = ps.label;
+    b.setAttribute('aria-pressed', String(sameScenario(ps, ps.events)));
+    b.addEventListener('click', () => applyPreset(ps));
+    box.appendChild(b);
+  });
+}
+
+function renderHorizon() {
+  const box = $('horizon'); box.textContent = '';
+  HORIZONS.forEach(h => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = yearsWord(h);
+    b.setAttribute('aria-pressed', String(state.horizon === h));
+    b.addEventListener('click', () => { state.horizon = h; renderEvents(); renderAll(); });
+    box.appendChild(b);
+  });
+}
+
+/* ---------- Разові витрати ---------- */
+
+function renderEvents() {
+  const list = $('eventList'); list.textContent = '';
+  state.events.forEach(ev => {
+    const li = document.createElement('li');
+    const sel = document.createElement('select');
+    sel.setAttribute('aria-label', 'Місяць витрати');
+    for (let t = 1; t <= MAX_MONTHS; t++) {
+      const o = document.createElement('option'); o.value = t; o.textContent = monthLabel(t);
+      if (t === ev.offset) o.selected = true;
+      sel.appendChild(o);
+    }
+    const amt = document.createElement('input');
+    amt.type = 'text'; amt.inputMode = 'numeric'; amt.autocomplete = 'off';
+    amt.setAttribute('aria-label', 'Сума витрати, грн');
+    amt.value = nf.format(ev.amount);
+    const unit = document.createElement('span'); unit.className = 'unit'; unit.textContent = 'грн';
+    const del = document.createElement('button');
+    del.type = 'button'; del.className = 'link-btn'; del.textContent = 'Прибрати';
+    li.append(sel, amt, unit, del);
+    if (ev.offset > state.horizon * 12) {
+      const note = document.createElement('span'); note.className = 'unit'; note.textContent = 'поза графіком';
+      li.appendChild(note);
+    }
+    list.appendChild(li);
+
+    sel.addEventListener('change', () => { ev.offset = Number(sel.value); renderEvents(); renderAll(); });
+    amt.addEventListener('input', () => { const v = parseNum(amt.value); ev.amount = isFinite(v) ? Math.round(v) : 0; renderAll(); });
+    amt.addEventListener('change', () => { amt.value = nf.format(ev.amount); });
+    del.addEventListener('click', () => { state.events = state.events.filter(e => e !== ev); renderEvents(); renderAll(); });
+  });
+}
+
+/* ---------- Графік ---------- */
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+function svg(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function niceTicks(min, max, count) {
+  if (max === min) max = min + 1;
+  const raw = (max - min) / count;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw / mag;
+  const step = (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * mag;
+  const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step;
+  const ticks = [];
+  for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Math.round(v));
+  return ticks;
+}
+
+let chartGeom = null;
+
+function chartSeries() {
+  const hM = state.horizon * 12;
+  const cur = info.curIdx;
+  const at = {};   // x -> { total, cash, stocks, base, target, extra, kind }
+  info.hist.forEach((h, i) => {
+    at[info.histIdx[i]] = { cash: h.cash, stocks: h.stocks, total: h.cash + h.stocks, kind: 'fact' };
+  });
+  const showBase = !isBase();
+  for (let t = 0; t <= hM; t++) {
+    at[cur + t] = {
+      cash: sim.cash[t], stocks: sim.stocks[t], total: sim.total[t],
+      base: showBase ? base.total[t] : null, target: sim.target,
+      extra: sim.extra[t] || 0, kind: t === 0 ? 'now' : 'plan',
+    };
+  }
+  return { at, cur, last: cur + hM, showBase };
+}
+
+function drawChart() {
+  const box = $('chart');
+  const W = box.clientWidth;
+  if (!W) return;
+  const old = box.querySelector('svg'); if (old) old.remove();
+
+  const narrow = W < 560;
+  const Hh = narrow ? 250 : 320;
+  const M = { l: narrow ? 50 : 62, r: narrow ? 58 : 74, t: 24, b: 28 };
+  const pw = W - M.l - M.r, ph = Hh - M.t - M.b;
+  const S = chartSeries();
+  const xs = Object.keys(S.at).map(Number).sort((a, b) => a - b);
+
+  const vals = [0, sim.target];
+  xs.forEach(x => { const p = S.at[x]; vals.push(p.total, p.cash); if (p.base != null) vals.push(p.base); });
+  const dMin = Math.min(...vals), dMax = Math.max(...vals);
+  const allTicks = niceTicks(dMin, dMax, narrow ? 4 : 5);
+  // Межі по даних із невеликим запасом, а не по найближчій «круглій» поділці
+  const pad = (dMax - dMin) * 0.06 || 1;
+  const y0 = dMin < 0 ? Math.max(allTicks[0], dMin - pad) : 0;
+  const y1 = Math.min(allTicks[allTicks.length - 1], dMax + pad);
+  const ticks = allTicks.filter(v => v >= y0 - 1 && v <= y1 + 1);
+  const X = i => M.l + (S.last === 0 ? 0 : (i / S.last) * pw);
+  const Y = v => M.t + (1 - (v - y0) / (y1 - y0)) * ph;
+
+  const root = svg('svg', { viewBox: `0 0 ${W} ${Hh}`, height: Hh, role: 'img', tabindex: '0',
+    'aria-label': 'Графік капіталу. Зараз ' + compactMoney(sim.total[0]) + ', через ' + yearsWord(state.horizon) + ' ' + compactMoney(sim.total[state.horizon * 12]) + '. Стрілками вліво й вправо можна переглянути місяці.' });
+  box.insertBefore(root, $('tooltip'));
+
+  // Зона прогнозу
+  svg('rect', { x: X(S.cur), y: M.t, width: X(S.last) - X(S.cur), height: ph, fill: 'var(--tint)' }, root);
+
+  // Сітка й підписи осі Y
+  ticks.forEach(v => {
+    svg('line', { x1: M.l, x2: M.l + pw, y1: Y(v), y2: Y(v), stroke: v === 0 ? 'var(--axis)' : 'var(--line)', 'stroke-width': 1, 'shape-rendering': 'crispEdges' }, root);
+    const t = svg('text', { x: M.l - 8, y: Y(v) + 4, 'text-anchor': 'end', class: 'tick' }, root);
+    t.textContent = compact(v);
+  });
+
+  // Підписи осі X
+  const span = S.last;
+  const cand = [];
+  for (let i = 0; i <= span; i++) {
+    const key = ymAdd(info.firstKey, i), { y, m } = ymParse(key);
+    if (span <= 24 ? m % 3 === 0 : m === 0) cand.push({ i, text: span <= 24 ? (m === 0 ? String(y) : M_SHORT[m]) : String(y) });
+  }
+  const minGap = narrow ? 40 : 52;
+  let lastX = -Infinity;
+  cand.forEach(c => {
+    const x = X(c.i);
+    if (x - lastX < minGap || x > M.l + pw - 10) return;
+    lastX = x;
+    const t = svg('text', { x, y: M.t + ph + 18, 'text-anchor': 'middle', class: 'tick' }, root);
+    t.textContent = c.text;
+  });
+
+  // Лінія «сьогодні»
+  svg('line', { x1: X(S.cur), x2: X(S.cur), y1: M.t - 6, y2: M.t + ph, stroke: 'var(--axis)', 'stroke-width': 1, 'shape-rendering': 'crispEdges' }, root);
+  const today = svg('text', { x: X(S.cur) + 5, y: M.t - 9, class: 'tick' }, root);
+  today.textContent = 'сьогодні';
+
+  // Ціль подушки
+  const ty = Y(sim.target);
+  svg('line', { x1: X(S.cur), x2: X(S.last), y1: ty, y2: ty, stroke: 'var(--ink-2)', 'stroke-width': 1.5, 'stroke-dasharray': '5 4' }, root);
+  // Підпис ставимо туди, де лінії до нього найдалі: зліва чи справа, над чи під пунктиром
+  const tText = 'подушка ' + compact(sim.target);
+  const tW = tText.length * 6.2 + 8;
+  const xStart = X(S.cur), xEnd = X(S.last);
+  const spots = [
+    { x: xStart + 6, anchor: 'start', a: xStart, b: xStart + tW, dy: -6 },
+    { x: xStart + 6, anchor: 'start', a: xStart, b: xStart + tW, dy: 15 },
+    { x: xEnd - 6, anchor: 'end', a: xEnd - tW, b: xEnd, dy: -6 },
+    { x: xEnd - 6, anchor: 'end', a: xEnd - tW, b: xEnd, dy: 15 },
+  ];
+  spots.forEach(s => {
+    const mid = ty + s.dy - 4;
+    s.clear = Infinity;
+    xs.forEach(x => {
+      const px = X(x); if (px < s.a || px > s.b) return;
+      ['total', 'cash', 'base'].forEach(k => { const v = S.at[x][k]; if (v != null) s.clear = Math.min(s.clear, Math.abs(Y(v) - mid)); });
+    });
+  });
+  const spot = spots.reduce((best, s) => s.clear > best.clear + 0.5 ? s : best, spots[0]);
+  const tl = svg('text', { x: spot.x, y: ty + spot.dy, 'text-anchor': spot.anchor, class: 'annot' }, root);
+  tl.textContent = tText;
+
+  const path = key => xs.filter(x => S.at[x][key] != null).map((x, j) => (j ? 'L' : 'M') + X(x).toFixed(1) + ',' + Y(S.at[x][key]).toFixed(1)).join('');
+
+  // Площа капіталу
+  const totalPts = xs.map(x => X(x).toFixed(1) + ',' + Y(S.at[x].total).toFixed(1));
+  svg('path', { d: 'M' + X(xs[0]).toFixed(1) + ',' + Y(0) + 'L' + totalPts.join('L') + 'L' + X(xs[xs.length - 1]).toFixed(1) + ',' + Y(0) + 'Z', fill: 'var(--cap)', 'fill-opacity': 0.1 }, root);
+
+  const lineAttrs = color => ({ fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
+  if (S.showBase) svg('path', { d: path('base'), ...lineAttrs('var(--ghost)') }, root);
+  svg('path', { d: path('cash'), ...lineAttrs('var(--cash)') }, root);
+  svg('path', { d: path('total'), ...lineAttrs('var(--cap)') }, root);
+
+  // Разові витрати на осі
+  for (let t = 1; t <= state.horizon * 12; t++) {
+    if (sim.extra[t]) svg('circle', { cx: X(S.cur + t), cy: M.t + ph, r: 4, fill: 'var(--ink-2)', stroke: 'var(--surface)', 'stroke-width': 2 }, root);
+  }
+
+  // Кінцеві точки й підписи
+  const end = S.at[S.last];
+  const endCap = Y(end.total), endCash = Y(end.cash);
+  [['var(--cash)', endCash], ['var(--cap)', endCap]].forEach(([c, y]) => svg('circle', { cx: X(S.last), cy: y, r: 4, fill: c, stroke: 'var(--surface)', 'stroke-width': 2 }, root));
+  const lab = (y, text) => { const t = svg('text', { x: X(S.last) + 9, y: y + 4, class: 'end-label' }, root); t.textContent = text; };
+  lab(endCap, compact(end.total));
+  if (Math.abs(endCap - endCash) >= 15) lab(endCash, compact(end.cash));
+
+  // Шар наведення
+  const hover = svg('g', { visibility: 'hidden' }, root);
+  const cross = svg('line', { y1: M.t, y2: M.t + ph, stroke: 'var(--ink-2)', 'stroke-width': 1, 'shape-rendering': 'crispEdges' }, hover);
+  const dots = {
+    base: svg('circle', { r: 4, fill: 'var(--ghost)', stroke: 'var(--surface)', 'stroke-width': 2 }, hover),
+    cash: svg('circle', { r: 4, fill: 'var(--cash)', stroke: 'var(--surface)', 'stroke-width': 2 }, hover),
+    total: svg('circle', { r: 4, fill: 'var(--cap)', stroke: 'var(--surface)', 'stroke-width': 2 }, hover),
+  };
+  const overlay = svg('rect', { x: M.l, y: M.t - 10, width: pw, height: ph + 20, fill: 'transparent' }, root);
+
+  chartGeom = { X, Y, M, pw, ph, S, hover, cross, dots, W, root };
+
+  const pick = clientX => {
+    const r = root.getBoundingClientRect();
+    const px = clientX - r.left;
+    return Math.max(0, Math.min(S.last, Math.round((px - M.l) / pw * S.last)));
+  };
+  overlay.addEventListener('pointermove', e => showAt(pick(e.clientX)));
+  overlay.addEventListener('pointerdown', e => showAt(pick(e.clientX)));
+  overlay.addEventListener('pointerleave', hideTip);
+  root.addEventListener('focus', () => showAt(chartGeom.focusIdx != null ? chartGeom.focusIdx : S.cur));
+  root.addEventListener('blur', hideTip);
+  root.addEventListener('keydown', e => {
+    const step = { ArrowLeft: -1, ArrowRight: 1, PageUp: -12, PageDown: 12, Home: -Infinity, End: Infinity }[e.key];
+    if (e.key === 'Escape') { hideTip(); return; }
+    if (step === undefined) return;
+    e.preventDefault();
+    const cur = chartGeom.focusIdx != null ? chartGeom.focusIdx : S.cur;
+    showAt(Math.max(0, Math.min(S.last, cur + (isFinite(step) ? step : step > 0 ? S.last : -S.last))));
+  });
+}
+
+function showAt(i) {
+  const g = chartGeom; if (!g) return;
+  let x = i;
+  while (x >= 0 && !g.S.at[x]) x--;          // пропуски в історії
+  if (x < 0) return;
+  g.focusIdx = x;
+  const p = g.S.at[x];
+  const cx = g.X(x);
+  g.hover.setAttribute('visibility', 'visible');
+  g.cross.setAttribute('x1', cx); g.cross.setAttribute('x2', cx);
+  [['total', p.total], ['cash', p.cash], ['base', p.base]].forEach(([k, v]) => {
+    if (v == null) { g.dots[k].setAttribute('visibility', 'hidden'); return; }
+    g.dots[k].setAttribute('visibility', 'visible');
+    g.dots[k].setAttribute('cx', cx); g.dots[k].setAttribute('cy', g.Y(v));
+  });
+
+  const tip = $('tooltip'); tip.textContent = '';
+  const { y, m } = ymParse(ymAdd(info.firstKey, x));
+  const head = document.createElement('div'); head.className = 'tt-head';
+  head.textContent = M_NOM[m][0].toUpperCase() + M_NOM[m].slice(1) + ' ' + y + (p.kind === 'fact' ? ', факт' : p.kind === 'now' ? ', сьогодні' : ', прогноз');
+  tip.appendChild(head);
+  const row = (key, value, name, sub) => {
+    const r = document.createElement('div'); r.className = 'tt-row' + (sub ? ' sub' : '');
+    if (!sub) { const k = document.createElement('i'); k.className = 'key ' + key; r.appendChild(k); }
+    const b = document.createElement('b'); b.textContent = money(value);
+    const s = document.createElement('span'); s.textContent = name;
+    r.append(b, s); tip.appendChild(r);
+  };
+  row('cap', p.total, 'весь капітал');
+  row('none', p.stocks, 'з них акції', true);
+  row('cash', p.cash, 'кеш');
+  if (p.base != null && p.kind === 'plan') row('ghost', p.base, 'поточний темп');
+  if (p.kind !== 'fact') row('target', p.target, 'ціль подушки');
+  if (p.extra) row('none', -p.extra, 'разова витрата', true);
+
+  tip.hidden = false;
+  const tw = tip.offsetWidth;
+  let left = cx + 14;
+  if (left + tw > g.W - 4) left = cx - 14 - tw;
+  tip.style.left = Math.max(0, left) + 'px';
+  tip.style.top = (g.M.t + 4) + 'px';
+}
+function hideTip() {
+  $('tooltip').hidden = true;
+  if (chartGeom) chartGeom.hover.setAttribute('visibility', 'hidden');
+}
+
+function renderLegend() {
+  const ul = $('legend'); ul.textContent = '';
+  const items = [['cap', 'Весь капітал'], ['cash', 'Кеш'], ['target', 'Ціль подушки']];
+  if (!isBase()) items.push(['ghost', 'Поточний темп']);
+  items.forEach(([k, t]) => {
+    const li = document.createElement('li');
+    const i = document.createElement('i'); i.className = 'key ' + k;
+    li.append(i, document.createTextNode(t));
+    ul.appendChild(li);
+  });
+}
+
+function renderTable() {
+  renderLegend();
+  const hM = state.horizon * 12;
+  const step = hM <= 12 ? 1 : hM <= 36 ? 3 : hM <= 60 ? 6 : 12;
+  const showBase = !isBase();
+  const table = document.createElement('table');
+  const thead = table.createTHead().insertRow();
+  ['Місяць', 'Кеш', 'Акції', 'Весь капітал'].concat(showBase ? ['Поточний темп'] : []).forEach(h => {
+    const th = document.createElement('th'); th.textContent = h; thead.appendChild(th);
+  });
+  const tb = table.createTBody();
+  for (let t = 0; t <= hM; t += step) {
+    const r = tb.insertRow();
+    const cells = [t === 0 ? 'Сьогодні' : monthLabel(t), money(sim.cash[t]), money(sim.stocks[t]), money(sim.total[t])];
+    if (showBase) cells.push(money(base.total[t]));
+    cells.forEach(c => { r.insertCell().textContent = c; });
+  }
+  $('tableWrap').textContent = '';
+  $('tableWrap').appendChild(table);
+}
+
+/* ================= Екрани ================= */
+
+function showConnect(message) {
+  $('app').hidden = true; $('dock').hidden = true; $('topMeta').hidden = true;
+  $('connect').hidden = false;
+  const conn = store.get(STORE_CONN);
+  if (!$('apiUrl').value) $('apiUrl').value = (conn && conn.url) || DEFAULT_URL;
+  $('connectError').textContent = message || '';
+}
+
+function useData(d) {
+  const firstTime = !data;
+  const wasBase = state && defaults && isBase();
+  data = d;
+  info = analyze(d);
+  const newDefaults = makeDefaults(info);
+  if (!state) state = { p: { ...newDefaults }, events: [], horizon: 3 };
+  else if (wasBase) state.p = { ...newDefaults };
+  defaults = newDefaults;
+
+  const dt = new Date(d.asOf + 'T12:00:00');
+  $('asOf').textContent = 'Дані на ' + dt.getDate() + ' ' + M_GEN[dt.getMonth()];
+  $('connect').hidden = true; $('app').hidden = false; $('dock').hidden = false; $('topMeta').hidden = false;
+  if (firstTime) buildControls();
+  syncControls();
+  renderEvents();
+  renderAll();
+}
+
+let refreshing = false;
+async function refresh() {
+  const conn = store.get(STORE_CONN);
+  if (!conn) return showConnect();
+  if (refreshing) return;
+  refreshing = true;
+  $('status').textContent = 'Оновлюю…';
+  $('app').classList.add('loading');
+  try {
+    const d = await fetchData(conn);
+    store.set(STORE_CACHE, { data: d, at: Date.now() });
+    useData(d);
+    $('status').textContent = '';
+  } catch (e) {
+    if (e.code === 'unauthorized') {
+      store.del(STORE_CACHE);
+      data = null; state = null;
+      showConnect(ERRORS.unauthorized);
+    } else if (!data) {
+      showConnect(ERRORS[e.code] || ERRORS.network);
+    } else {
+      $('status').textContent = 'Не вдалося оновити, показую збережені дані.';
+    }
+  } finally {
+    refreshing = false;
+    $('app').classList.remove('loading');
+  }
+}
+
+$('connectForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const url = $('apiUrl').value.trim();
+  const key = $('apiKey').value.trim();
+  if (!URL_RE.test(url)) { $('connectError').textContent = 'Адреса має виглядати так: https://script.google.com/macros/s/…/exec'; return; }
+  if (!KEY_RE.test(key)) { $('connectError').textContent = 'Ключ складається з 64 латинських літер і цифр. Схоже, скопіювався не весь.'; return; }
+  const btn = $('connectBtn');
+  btn.disabled = true; btn.textContent = 'Підключаю…';
+  $('connectError').textContent = '';
+  try {
+    const d = await fetchData({ url, key });
+    store.set(STORE_CONN, { url, key });
+    store.set(STORE_CACHE, { data: d, at: Date.now() });
+    $('apiKey').value = '';
+    useData(d);
+  } catch (err) {
+    $('connectError').textContent = ERRORS[err.code] || ERRORS.network;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Підключити';
+  }
+});
+
+$('refreshBtn').addEventListener('click', refresh);
+$('disconnectBtn').addEventListener('click', () => {
+  store.del(STORE_CONN); store.del(STORE_CACHE);
+  data = null; state = null; info = null; defaults = null;
+  $('apiUrl').value = DEFAULT_URL; $('apiKey').value = '';
+  showConnect('Відключено. Ключ і збережені цифри видалено з цього браузера.');
+});
+$('autoInvest').addEventListener('change', e => { state.p.auto = e.target.checked; renderAll(); });
+$('addEvent').addEventListener('click', () => {
+  state.events.push({ id: eventSeq++, offset: Math.min(3, state.horizon * 12), amount: 50000 });
+  renderEvents(); renderAll();
+});
+
+let resizeTimer = null;
+new ResizeObserver(() => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { if (data && sim) { hideTip(); drawChart(); } }, 60);
+}).observe($('chart'));
+
+/* ================= Старт ================= */
+
+(function boot() {
+  const conn = store.get(STORE_CONN);
+  if (!conn || !URL_RE.test(conn.url) || !KEY_RE.test(conn.key)) { store.del(STORE_CONN); return showConnect(); }
+  const cache = store.get(STORE_CACHE);
+  if (cache && isValidData(cache.data)) useData(cache.data);
+  refresh();
+})();
+
+})();
+</script>
+</body>
+</html>
