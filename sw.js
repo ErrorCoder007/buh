@@ -1,6 +1,6 @@
 // Кеш оболонки додатка, щоб він відкривався без інтернету.
 // Змінюй VERSION при кожному оновленні файлів — тоді телефон підтягне нову версію.
-const VERSION = 'buh-v4';
+const VERSION = 'buh-v5';
 const SHELL = [
   './',
   'index.html',
@@ -28,6 +28,8 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   // Запити до Google Apps Script (API) не кешуємо
   if (req.method !== 'GET' || url.origin !== self.location.origin) return;
+  // Симулятор «Що якщо» (папка sim/) живе своїм життям: не кешуємо і не підміняємо ним index.html
+  if (url.pathname.includes('/sim/')) return;
 
   // Сторінка: спершу мережа (щоб оновлення приходили), без мережі — кеш
   if (req.mode === 'navigate') {
